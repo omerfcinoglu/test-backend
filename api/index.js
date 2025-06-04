@@ -1,9 +1,8 @@
-// api/index.js
-const serverless = require("serverless-http");
-require("dotenv").config();
+// api/hello.js
 
-const app = require("../server");
-
-module.exports = serverless(app, {
-    callbackWaitsForEmptyEventLoop: false
-});
+export default function handler(req, res) {
+    if (req.method === "GET") {
+        return res.status(200).json({ message: "Hello from test-backend!" });
+    }
+    return res.status(405).end(); // Sadece GET destekleniyor
+}
