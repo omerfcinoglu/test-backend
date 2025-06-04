@@ -1,8 +1,9 @@
 // api/index.js - FIXED VERSION
-const serverless = require("serverless-http");
 require("dotenv").config();
 
 const express = require("express");
+const serverless = require("serverless-http");
+
 const app = express();
 
 // Middleware
@@ -116,6 +117,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-module.exports = serverless(app, {
-    callbackWaitsForEmptyEventLoop: false
-});
+// Export the serverless handler
+const handler = serverless(app);
+module.exports = handler;
+module.exports.handler = handler;
