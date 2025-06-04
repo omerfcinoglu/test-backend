@@ -1,43 +1,35 @@
+// backend/server.js
 require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const morgan = require("morgan");
 
-const pagesRouter = require("./routes/pages");
+const authRoutes = require("./routes/authRoutes");
+const pageRoutes = require("./routes/pageRoutes");
+const postRoutes = require("./routes/postRoutes");
+const membersRoutes = require("./routes/membersRoutes");
 
 const app = express();
+app.use(cors(), express.json(), morgan("dev"));
 
-// Middleware
-app.use(express.json());
+// Buradan itibaren “/api” prefix’ini kaldırıyoruz:
+app.use("/auth", authRoutes);
+app.use("/pages", pageRoutes);
+app.use("/posts", postRoutes);
+app.use("/members", membersRoutes);
 
-// CORS middleware
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+mongoose
+  .connect(process.env.MONGO_URI, {
+    // useNewUrlParser ve useUnifiedTopology artık depreke uyarısı veriyor; kaldırabilirsiniz
+  })
+  .then(() => console.log("✅ MongoDB'ye başarıyla bağlandı"))
+  .catch((err) => console.log("❌ MongoDB Bağlantı Hatası:", err));
 
-    if (req.method === 'OPTIONS') {
-        res.sendStatus(200);
-    } else {
-        next();
-    }
-});
-
-// Routes
-app.use("/pages", pagesRouter);
-
-// Health check route
-app.get("/", (req, res) => {
-    res.json({ message: "API is running!", timestamp: new Date().toISOString() });
-});
-
-// 404 handler
-app.use("*", (req, res) => {
-    res.status(404).json({ message: "Route not found" });
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: "Something went wrong!" });
-});
+// Development aşamasında app.listen kalsın, production’da Vercel’e geçtik
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`🚀 Server ${PORT} portunda çalışıyor`));
+}
 
 module.exports = app;
