@@ -6,7 +6,7 @@ const app = express();
 
 // /api altına yönlendiriyoruz:
 const realApp = require("../server");
-app.use("/api", realApp);
+app.use(realApp);
 
 module.exports = serverless(app, {
     callbackWaitsForEmptyEventLoop: false
